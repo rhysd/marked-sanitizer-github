@@ -1,0 +1,26 @@
+{
+  "name": "marked-sanitizer-github",
+  "version": "0.0.1",
+  "description": "HTML tag sanitizer for marked",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhysd/marked-sanitizer-github.git"
+  },
+  "keywords": [
+    "marked",
+    "markdown",
+    "sanitize",
+    "sanitizer",
+    "html"
+  ],
+  "author": "rhysd <lin90162@yahoo.co.jp>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rhysd/marked-sanitizer-github/issues"
+  },
+  "homepage": "https://github.com/rhysd/marked-sanitizer-github#readme"
+}
