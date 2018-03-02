@@ -7,7 +7,7 @@
     "watch": "tsc -p . --pretty --watch",
     "tsc": "tsc -p . --pretty",
     "build": "npm run tsc",
-    "test": "jest"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -27,22 +27,8 @@
   },
   "homepage": "https://github.com/rhysd/marked-sanitizer-github#readme",
   "devDependencies": {
-    "@types/jest": "^22.1.4",
     "@types/marked": "^0.3.0",
-    "jest": "^22.4.2",
     "marked": "^0.3.17",
     "typescript": "^2.7.2"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "transform": {
-      "^.+\\.ts$": "<rootDir>/__tests__/preprocessor.js"
-    },
-    "testMatch": [
-      "<rootDir>/__tests__/*.ts"
-    ]
   }
 }
