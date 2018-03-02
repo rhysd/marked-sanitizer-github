@@ -4,6 +4,9 @@
   "description": "HTML tag sanitizer for marked",
   "main": "index.js",
   "scripts": {
+    "watch": "tsc -p . --pretty --watch",
+    "tsc": "tsc -p . --pretty",
+    "build": "npm run tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/rhysd/marked-sanitizer-github/issues"
   },
-  "homepage": "https://github.com/rhysd/marked-sanitizer-github#readme"
+  "homepage": "https://github.com/rhysd/marked-sanitizer-github#readme",
+  "devDependencies": {
+    "@types/marked": "^0.3.0",
+    "marked": "^0.3.17",
+    "typescript": "^2.7.2"
+  }
 }
