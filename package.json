@@ -7,7 +7,9 @@
     "watch": "tsc -p . --pretty --watch",
     "tsc": "tsc -p . --pretty",
     "build": "npm run tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "ava": "ava 'test/*.js'",
+    "test": "npm run tsc && npm run ava",
+    "watch-test": "ava --watch 'test/*.js'"
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,8 @@
   "homepage": "https://github.com/rhysd/marked-sanitizer-github#readme",
   "devDependencies": {
     "@types/marked": "^0.3.0",
+    "ava": "^0.25.0",
+    "heredocument": "^2.0.2",
     "marked": "^0.3.17",
     "typescript": "^2.7.2"
   }

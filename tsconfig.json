@@ -15,6 +15,7 @@
     "sourceMap": true
   },
   "files": [
-    "index.ts"
+    "index.ts",
+    "test/integ.ts"
   ]
 }

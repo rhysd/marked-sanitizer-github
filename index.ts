@@ -5,6 +5,10 @@ export default class SanitizeState {
         this.tagStack = [];
     }
 
+    isInUse() {
+        return this.tagStack.length !== 0;
+    }
+
     getSanitizer() {
         return this.sanitize.bind(this);
     }
