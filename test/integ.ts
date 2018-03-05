@@ -3,7 +3,7 @@ import here from 'heredocument';
 import SanitizeState from '../index';
 import test from 'ava';
 
-const TESTCASES_OK = {
+const CHECK_INTEG = {
     'small input without tag': {
         input: here`
             Title
@@ -29,8 +29,8 @@ const TESTCASES_OK = {
     };
 };
 
-for (const desc of Object.keys(TESTCASES_OK)) {
-    const testcase = TESTCASES_OK[desc];
+for (const desc of Object.keys(CHECK_INTEG)) {
+    const testcase = CHECK_INTEG[desc];
     test(`sanitizes ${desc}`, t => {
         const state = new SanitizeState();
         const have = marked(testcase.input, {
