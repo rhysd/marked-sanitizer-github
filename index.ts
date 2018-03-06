@@ -9,6 +9,12 @@ interface ElemAttrs {
 type TagHistory = [string, boolean];
 type HTMLElem = { name: string; attrs: ElemAttrs };
 
+export enum HowToSanitize {
+    Escape,
+    Remove,
+    DoNothing,
+}
+
 export default class SanitizeState {
     private tagStack: TagHistory[] = [];
     private parsed: HTMLElem | undefined;
@@ -47,6 +53,7 @@ export default class SanitizeState {
             return escapeHTML(tag);
         }
 
+        // Check top
         const [name, escaped] = this.tagStack[0];
         if (tag !== `</${name}>`) {
             // Open/Close tag mismatch
@@ -54,6 +61,7 @@ export default class SanitizeState {
             return escapeHTML(tag);
         }
 
+        // Pop
         this.tagStack.shift();
 
         if (escaped) {
@@ -73,13 +81,23 @@ export default class SanitizeState {
             return escapeHTML(tag);
         }
 
-        const escaped = shouldEscape(elem);
+        const how = this.howToSanitize(elem);
+        if (how === HowToSanitize.Remove) {
+            return '';
+        }
+
+        const escaped = how === HowToSanitize.Escape;
+
         if (!isEmptyTag) {
+            // Push
             this.tagStack.push([elem.name, escaped]);
         }
+
         if (escaped) {
             return escapeHTML(tag);
         }
+
+        // When how === HowToSanitize.DoNothing
         return tag;
     }
 
@@ -90,9 +108,14 @@ export default class SanitizeState {
         this.parsed = undefined;
         return parsed;
     }
-}
 
-export function shouldEscape(_: HTMLElem) {
-    // TODO: Implement sanitization logic ported from GitHub's HTML pipeline logic
-    return true;
+    private howToSanitize(_: HTMLElem): HowToSanitize {
+        // TODO: Check list item elements looking tag stack
+        // TODO: Check table cell elements looking tag stack
+        // TODO: Check allowed (non escaped) elements
+        // TODO: Check elements should be removed (not escaped, but just removed)
+        // TODO: Check allowed attributes
+        // TODO: Check allowed protocols (e.g. 'href' of <a/>)
+        return HowToSanitize.Escape;
+    }
 }

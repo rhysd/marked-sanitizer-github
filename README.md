@@ -1,6 +1,8 @@
 Port of GitHub's Markdown Sanitizer for [marked][]
 ==================================================
 
+**This package is under construction until v1.0.0**
+
 This package provides a sanitizer to sanitize HTML elements in Markdown documents.
 The implementation was ported from [html-pipeline](html-pipeline/lib/html/pipeline/sanitization_filter.rb).
 
