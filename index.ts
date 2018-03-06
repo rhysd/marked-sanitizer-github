@@ -5,22 +5,25 @@ interface ElemAttrs {
     [name: string]: string | undefined;
 }
 
-// Tuple of (tagName, didEscape)
-type TagHistory = [string, boolean];
 type HTMLElem = { name: string; attrs: ElemAttrs };
 
-export enum HowToSanitize {
+enum HowToSanitize {
     Escape,
     Remove,
     DoNothing,
 }
 
+// Tuple of (tagName, didEscape)
+type TagHistory = [string, HowToSanitize];
+
 export default class SanitizeState {
+    public readonly config: SanitizeConfig;
     private tagStack: TagHistory[] = [];
     private parsed: HTMLElem | undefined;
     private readonly parser: HTMLParser;
 
     constructor() {
+        this.config = new SanitizeConfig();
         this.parser = new HTMLParser({
             onopentag: (name, attrs) => {
                 this.parsed = { name, attrs };
@@ -54,7 +57,7 @@ export default class SanitizeState {
         }
 
         // Check top
-        const [name, escaped] = this.tagStack[0];
+        const [name, how] = this.tagStack[0];
         if (tag !== `</${name}>`) {
             // Open/Close tag mismatch
             // TODO: Should raise a warning message for debugging as optional.
@@ -64,11 +67,14 @@ export default class SanitizeState {
         // Pop
         this.tagStack.shift();
 
-        if (escaped) {
-            return escapeHTML(tag);
+        switch (how) {
+            case HowToSanitize.Remove:
+                return '';
+            case HowToSanitize.Escape:
+                return escapeHTML(tag);
+            case HowToSanitize.DoNothing:
+                return tag;
         }
-
-        return tag;
     }
 
     private sanitizeOpenTag(tag: string) {
@@ -82,23 +88,19 @@ export default class SanitizeState {
         }
 
         const how = this.howToSanitize(elem);
-        if (how === HowToSanitize.Remove) {
-            return '';
-        }
-
-        const escaped = how === HowToSanitize.Escape;
-
         if (!isEmptyTag) {
             // Push
-            this.tagStack.push([elem.name, escaped]);
+            this.tagStack.push([elem.name, how]);
         }
 
-        if (escaped) {
-            return escapeHTML(tag);
+        switch (how) {
+            case HowToSanitize.Remove:
+                return '';
+            case HowToSanitize.Escape:
+                return escapeHTML(tag);
+            case HowToSanitize.DoNothing:
+                return tag;
         }
-
-        // When how === HowToSanitize.DoNothing
-        return tag;
     }
 
     private parseOpenTag(tag: string) {
@@ -109,13 +111,232 @@ export default class SanitizeState {
         return parsed;
     }
 
-    private howToSanitize(_: HTMLElem): HowToSanitize {
-        // TODO: Check list item elements looking tag stack
-        // TODO: Check table cell elements looking tag stack
-        // TODO: Check allowed (non escaped) elements
+    private howToSanitize(elem: HTMLElem): HowToSanitize {
+        // Top-level <li> elements are removed because they can break out of
+        // containing markup.
+        if (elem.name === this.config.LIST_ITEM) {
+            let found = false;
+            for (const ancestor of this.tagStack) {
+                if (this.config.LIST.indexOf(ancestor[0]) !== -1) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return HowToSanitize.Remove;
+            }
+        }
+
+        // Table child elements that are not contained by a <table> are removed.
+        if (this.config.TABLE_SECTIONS.indexOf(elem.name) !== -1 || this.config.TABLE_ITEMS.indexOf(elem.name) !== -1) {
+            let found = false;
+            for (const ancestor of this.tagStack) {
+                if (this.config.TABLE === ancestor[0]) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return HowToSanitize.Remove;
+            }
+        }
+
+        const wl = this.config.whitelist;
+
+        // Check allowed (non escaped) elements
+        if (!wl.ELEMENTS.has(elem.name)) {
+            return HowToSanitize.Escape;
+        }
+
         // TODO: Check elements should be removed (not escaped, but just removed)
-        // TODO: Check allowed attributes
-        // TODO: Check allowed protocols (e.g. 'href' of <a/>)
+        // It's hard to remove content of the element with current markedjs implementation.
+
+        const allowedAttrs: string[] | undefined = (wl.ATTRIBUTES as any)[elem.name];
+        for (const attr of Object.keys(elem.attrs)) {
+            // Check allowed attributes
+            if ((allowedAttrs !== undefined && allowedAttrs.indexOf(attr) === -1) || !wl.ATTRIBUTES['*'].has(attr)) {
+                return HowToSanitize.Escape;
+            }
+
+            // Check allowed protocols (e.g. 'href' of <a/>)
+            if (elem.name in wl.PROTOCOLS && attr in wl.PROTOCOLS[elem.name]) {
+                let matched = false;
+                for (const protocol of wl.PROTOCOLS[elem.name][attr]) {
+                    if (elem.attrs[attr]!.startsWith(`${protocol}://`)) {
+                        matched = true;
+                    }
+                }
+                if (!matched) {
+                    return HowToSanitize.Escape;
+                }
+            }
+        }
+
         return HowToSanitize.Escape;
     }
+}
+
+export class SanitizeConfig {
+    LIST = ['ul', 'ol'];
+    LIST_ITEM = 'li';
+    TABLE_ITEMS = ['tr', 'td', 'th'];
+    TABLE = 'table';
+    TABLE_SECTIONS = ['thead', 'tbody', 'tfoot'];
+    whitelist = new SanitizeWhitelist();
+}
+
+export class SanitizeWhitelist {
+    ELEMENTS = new Set([
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'h7',
+        'h8',
+        'br',
+        'b',
+        'i',
+        'strong',
+        'em',
+        'a',
+        'pre',
+        'code',
+        'img',
+        'tt',
+        'div',
+        'ins',
+        'del',
+        'sup',
+        'sub',
+        'p',
+        'ol',
+        'ul',
+        'table',
+        'thead',
+        'tbody',
+        'tfoot',
+        'blockquote',
+        'dl',
+        'dt',
+        'dd',
+        'kbd',
+        'q',
+        'samp',
+        'var',
+        'hr',
+        'ruby',
+        'rt',
+        'rp',
+        'li',
+        'tr',
+        'td',
+        'th',
+        's',
+        'strike',
+        'summary',
+        'details',
+    ]);
+    REMOVE_CONTENTS = ['script'];
+    ATTRIBUTES = {
+        a: ['href'],
+        img: ['src', 'longdesc'],
+        div: ['itemscope', 'itemtype'],
+        blockquote: ['cite'],
+        del: ['cite'],
+        ins: ['cite'],
+        q: ['cite'],
+        '*': new Set([
+            'abbr',
+            'accept',
+            'accept-charset',
+            'accesskey',
+            'action',
+            'align',
+            'alt',
+            'axis',
+            'border',
+            'cellpadding',
+            'cellspacing',
+            'char',
+            'charoff',
+            'charset',
+            'checked',
+            'clear',
+            'cols',
+            'colspan',
+            'color',
+            'compact',
+            'coords',
+            'datetime',
+            'dir',
+            'disabled',
+            'enctype',
+            'for',
+            'frame',
+            'headers',
+            'height',
+            'hreflang',
+            'hspace',
+            'ismap',
+            'label',
+            'lang',
+            'maxlength',
+            'media',
+            'method',
+            'multiple',
+            'name',
+            'nohref',
+            'noshade',
+            'nowrap',
+            'open',
+            'prompt',
+            'readonly',
+            'rel',
+            'rev',
+            'rows',
+            'rowspan',
+            'rules',
+            'scope',
+            'selected',
+            'shape',
+            'size',
+            'span',
+            'start',
+            'summary',
+            'tabindex',
+            'target',
+            'title',
+            'type',
+            'usemap',
+            'valign',
+            'value',
+            'vspace',
+            'width',
+            'itemprop',
+        ]),
+    };
+    // Note: Relative path also should be allowed
+    PROTOCOLS = {
+        a: {
+            href: ['http', 'https', 'mailto', 'github-windows', 'github-mac'],
+        },
+        blockquote: {
+            cite: ['http', 'https'],
+        },
+        del: {
+            cite: ['http', 'https'],
+        },
+        ins: {
+            cite: ['http', 'https'],
+        },
+        q: {
+            cite: ['http', 'https'],
+        },
+        img: {
+            src: ['http', 'https'],
+            longdesc: ['http', 'https'],
+        },
+    } as { [name: string]: { [attr: string]: string[] } };
 }
