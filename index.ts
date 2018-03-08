@@ -57,7 +57,7 @@ export default class SanitizeState {
         }
 
         // Check top
-        const [name, how] = this.tagStack[0];
+        const [name, how] = this.tagStack[this.tagStack.length - 1];
         if (tag !== `</${name}>`) {
             // Open/Close tag mismatch
             // TODO: Should raise a warning message for debugging as optional.
@@ -65,7 +65,7 @@ export default class SanitizeState {
         }
 
         // Pop
-        this.tagStack.shift();
+        this.tagStack.pop();
 
         switch (how) {
             case HowToSanitize.Remove:
@@ -143,7 +143,7 @@ export default class SanitizeState {
         const allowedAttrs: string[] | undefined = (wl.ATTRIBUTES as any)[elem.name];
         for (const attr of Object.keys(elem.attrs)) {
             // Check allowed attributes
-            if ((allowedAttrs !== undefined && allowedAttrs.indexOf(attr) === -1) || !wl.ATTRIBUTES['*'].has(attr)) {
+            if (allowedAttrs !== undefined && allowedAttrs.indexOf(attr) === -1 && !wl.ATTRIBUTES['*'].has(attr)) {
                 return HowToSanitize.Escape;
             }
 
