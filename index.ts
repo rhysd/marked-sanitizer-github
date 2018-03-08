@@ -114,31 +114,20 @@ export default class SanitizeState {
     private howToSanitize(elem: HTMLElem): HowToSanitize {
         // Top-level <li> elements are removed because they can break out of
         // containing markup.
-        if (elem.name === this.config.LIST_ITEM) {
-            let found = false;
-            for (const ancestor of this.tagStack) {
-                if (this.config.LIST.indexOf(ancestor[0]) !== -1) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                return HowToSanitize.Remove;
-            }
+        if (
+            elem.name === this.config.LIST_ITEM &&
+            this.tagStack.every(([name, _]) => this.config.LIST.indexOf(name) === -1)
+        ) {
+            return HowToSanitize.Remove;
         }
 
         // Table child elements that are not contained by a <table> are removed.
-        if (this.config.TABLE_SECTIONS.indexOf(elem.name) !== -1 || this.config.TABLE_ITEMS.indexOf(elem.name) !== -1) {
-            let found = false;
-            for (const ancestor of this.tagStack) {
-                if (this.config.TABLE === ancestor[0]) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                return HowToSanitize.Remove;
-            }
+        if (
+            (this.config.TABLE_SECTIONS.indexOf(elem.name) !== -1 ||
+                this.config.TABLE_ITEMS.indexOf(elem.name) !== -1) &&
+            this.tagStack.every(([name, _]) => this.config.TABLE !== name)
+        ) {
+            return HowToSanitize.Remove;
         }
 
         const wl = this.config.whitelist;
@@ -159,20 +148,16 @@ export default class SanitizeState {
             }
 
             // Check allowed protocols (e.g. 'href' of <a/>)
-            if (elem.name in wl.PROTOCOLS && attr in wl.PROTOCOLS[elem.name]) {
-                let matched = false;
-                for (const protocol of wl.PROTOCOLS[elem.name][attr]) {
-                    if (elem.attrs[attr]!.startsWith(`${protocol}://`)) {
-                        matched = true;
-                    }
-                }
-                if (!matched) {
-                    return HowToSanitize.Escape;
-                }
+            if (
+                elem.name in wl.PROTOCOLS &&
+                attr in wl.PROTOCOLS[elem.name] &&
+                wl.PROTOCOLS[elem.name][attr].every(protocol => !elem.attrs[attr]!.startsWith(`${protocol}://`))
+            ) {
+                return HowToSanitize.Escape;
             }
         }
 
-        return HowToSanitize.Escape;
+        return HowToSanitize.DoNothing;
     }
 }
 
