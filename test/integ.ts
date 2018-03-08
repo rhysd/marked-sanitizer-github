@@ -22,6 +22,47 @@ const CHECK_INTEG = {
             </ul>
         `,
     },
+    'allowed tags': {
+        input: here`
+            <div>
+                <a href="https://example.com">hello</a>
+            </div>
+        `,
+        output: here`
+            <p><div>
+                <a href="https://example.com">hello</a>
+            </div>
+            </p>
+        `,
+    },
+    'banned tags': {
+        input: here`
+            <style>
+            </style>
+            <script>
+            </script>
+        `,
+        output: here`
+            <p>&lt;style&gt;
+            &lt;/style&gt;</p>
+            <p>&lt;script&gt;
+            &lt;/script&gt;
+            </p>
+        `,
+    },
+    'moreved tags': {
+        input: here`
+            <li>foo</li>
+            <thead>bar</thead>
+            <td>baz</td>
+        `,
+        output: here`
+            <p>foo</p>
+            <p>bar</p>
+            <p>baz
+            </p>
+        `,
+    },
 } as {
     [desc: string]: {
         input: string;
@@ -39,6 +80,6 @@ for (const desc of Object.keys(CHECK_INTEG)) {
         });
         const want = testcase.output;
         t.is(want, have);
-        t.true(!state.isInUse());
+        t.false(state.isInUse());
     });
 }
