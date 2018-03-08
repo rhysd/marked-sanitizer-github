@@ -16,6 +16,7 @@
   },
   "files": [
     "index.ts",
-    "test/integ.ts"
+    "test/integ.ts",
+    "test/sanitize.ts"
   ]
 }
