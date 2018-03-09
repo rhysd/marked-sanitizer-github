@@ -1,6 +1,6 @@
 Port of GitHub's Markdown Sanitizer for [marked][]
 ==================================================
-[![npm version badge][]][marked-sanitizer-github]
+[![npm version badge][]][npm pacakge]
 
 [marked-sanitizer-github][] provides a sanitizer to sanitize HTML elements in Markdown documents.
 The implementation was ported from [html-pipeline](html-pipeline/lib/html/pipeline/sanitization_filter.rb).
@@ -53,3 +53,4 @@ Returning `true` means it requires to call `reset()` method before parsing a new
 [marked]: https://github.com/markedjs/marked
 [marked-sanitizer-github]: https://github.com/rhysd/marked-sanitizer-github
 [npm version badge]: https://badge.fury.io/js/marked-sanitizer-github.svg
+[npm pacakge]: https://www.npmjs.com/package/marked-sanitizer-github
