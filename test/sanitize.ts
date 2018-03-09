@@ -128,3 +128,74 @@ for (const desc of Object.keys(SANITIZE_OK)) {
         t.false(state.isInUse());
     });
 }
+
+test('sanitize allowed empty elements', t => {
+    for (const tc of [['<br/>'], ['<br/>', '<br/>', '<br/>'], ['<div>', '<br/>', '</div>']]) {
+        const state = new SanitizeState();
+        for (const tag of tc) {
+            const ret = state.sanitize(tag);
+            t.is(tag, ret);
+        }
+        t.false(state.isInUse());
+    }
+});
+
+test('sanitize banned empty elements', t => {
+    for (const tc of [['<style/>'], ['<style/>', '<style/>', '<style/>'], ['<div>', '<style/>', '</div>']]) {
+        const state = new SanitizeState();
+        for (const tag of tc) {
+            const have = state.sanitize(tag);
+            let want = tag;
+            if (tag !== '<div>' && tag !== '</div>') {
+                want = escape(tag);
+            }
+            t.is(want, have);
+        }
+        t.false(state.isInUse());
+    }
+});
+
+const TEST_REMOVE_OK = {
+    'remove list item element if list element is not in ancestors': {
+        input: [['<li>', '</li>'], ['<li/>']],
+        parent: ['ul', 'ol'],
+    },
+    'remove table-related element if <table> is not in ancestors': {
+        input: [
+            ['<tr>', '</tr>'],
+            ['<tr/>'],
+            ['<th>', '</th>'],
+            ['<td>', '</td>'],
+            ['<thead>', '</thead>'],
+            ['<tbody>', '</tbody>'],
+            ['<tfoot>', '</tfoot>'],
+        ],
+        parent: ['table'],
+    },
+} as { [desc: string]: { input: string[][]; parent: string[] } };
+
+for (const desc of Object.keys(TEST_REMOVE_OK)) {
+    test(desc, t => {
+        const testcases = TEST_REMOVE_OK[desc].input;
+        for (const tc of testcases) {
+            const state = new SanitizeState();
+            for (const tag of tc) {
+                const have = state.sanitize(tag);
+                t.is('', have);
+            }
+            t.false(state.isInUse());
+        }
+        for (const list of TEST_REMOVE_OK[desc].parent) {
+            for (const tc of testcases) {
+                const state = new SanitizeState();
+                state.sanitize(`<${list}>`);
+                for (const tag of tc) {
+                    const have = state.sanitize(tag);
+                    t.is(tag, have);
+                }
+                state.sanitize(`</${list}>`);
+                t.false(state.isInUse());
+            }
+        }
+    });
+}
