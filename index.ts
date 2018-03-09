@@ -1,5 +1,7 @@
+import { URL } from 'url';
 import { Parser as HTMLParser } from 'htmlparser2';
 import { escape as escapeHTML } from 'he';
+import { isAbsolute } from 'path';
 
 interface ElemAttrs {
     [name: string]: string | undefined;
@@ -148,12 +150,22 @@ export default class SanitizeState {
             }
 
             // Check allowed protocols (e.g. 'href' of <a/>)
-            if (
-                elem.name in wl.PROTOCOLS &&
-                attr in wl.PROTOCOLS[elem.name] &&
-                wl.PROTOCOLS[elem.name][attr].every(protocol => !elem.attrs[attr]!.startsWith(`${protocol}://`))
-            ) {
-                return HowToSanitize.Escape;
+            if (elem.name in wl.PROTOCOLS && attr in wl.PROTOCOLS[elem.name]) {
+                const value = elem.attrs[attr]!;
+
+                try {
+                    const u = new URL(value);
+                    const protocol = u.protocol.slice(0, -1); // Omit last ':'
+                    const allowedProtocols = wl.PROTOCOLS[elem.name][attr];
+                    if (allowedProtocols.every(p => p !== protocol)) {
+                        return HowToSanitize.Escape;
+                    }
+                } catch (_) {
+                    // Not a URL
+                    if (isAbsolute(value)) {
+                        return HowToSanitize.Escape;
+                    }
+                }
             }
         }
 
