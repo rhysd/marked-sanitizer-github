@@ -19,7 +19,7 @@ enum HowToSanitize {
 type SanitizeHistory = [string, HowToSanitize];
 
 export default class SanitizeState {
-    public readonly config: SanitizeConfig;
+    public config: SanitizeConfig;
     private tagStack: SanitizeHistory[] = [];
     private parsed: HTMLElem | undefined;
     private readonly parser: HTMLParser;

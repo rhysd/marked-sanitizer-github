@@ -6,12 +6,14 @@
   "scripts": {
     "watch": "tsc -p . --pretty --watch",
     "tsc": "tsc -p . --pretty",
+    "dts": "tsc -p . --pretty --declaration",
     "build": "npm run tsc",
     "ava": "ava 'test/*.js'",
     "nyc": "nyc --reporter=html --reporter=text ava 'test/*.js'",
     "test": "npm run tsc && npm run ava",
     "coverage": "npm run tsc && npm run nyc",
-    "watch-test": "ava --watch 'test/*.js'"
+    "watch-test": "ava --watch 'test/*.js'",
+    "prepublishOnly": "npm run build && npm run nyc"
   },
   "repository": {
     "type": "git",
