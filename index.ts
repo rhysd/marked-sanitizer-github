@@ -16,11 +16,11 @@ enum HowToSanitize {
 }
 
 // Tuple of (tagName, didEscape)
-type TagHistory = [string, HowToSanitize];
+type SanitizeHistory = [string, HowToSanitize];
 
 export default class SanitizeState {
     public readonly config: SanitizeConfig;
-    private tagStack: TagHistory[] = [];
+    private tagStack: SanitizeHistory[] = [];
     private parsed: HTMLElem | undefined;
     private readonly parser: HTMLParser;
 

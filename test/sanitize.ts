@@ -35,6 +35,48 @@ const SANITIZE_OK: {
         { elem: ['script', { src: 'https://example.com/foo.js' }], escaped: true },
         { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
     ],
+
+    'sanitized elements only (nested)': [
+        {
+            elem: 'style',
+            escaped: true,
+            children: {
+                elem: ['script', { src: 'https://example.com/foo.js' }],
+                escaped: true,
+                children: { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+            },
+        },
+    ],
+
+    'sanitize attributes': [
+        { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+        { elem: ['a', { href: 'https://example.com' }], escaped: false },
+        { elem: ['a', { href: 'https://example.com', onclick: '42' }], escaped: true },
+        { elem: ['a', { name: 'foo' }], escaped: false },
+        { elem: ['img', { onclick: 'console.log("hey")' }], escaped: true },
+        { elem: ['img', { src: 'path/to/image.png' }], escaped: false },
+        { elem: ['div', { onclick: 'console.log("hey")' }], escaped: true },
+        { elem: ['div', { color: 'red' }], escaped: false },
+        { elem: ['div', { color: 'red', onclick: '42' }], escaped: true },
+    ],
+
+    'sanitize protocols': [
+        { elem: ['a', { href: 'https://foo.com/bar' }], escaped: false },
+        { elem: ['a', { href: 'https://foo.com' }], escaped: false },
+        { elem: ['a', { href: 'http://foo.com/bar' }], escaped: false },
+        { elem: ['a', { href: 'mailto:rhysd@github.com' }], escaped: false },
+        { elem: ['a', { href: 'file:///path/to/file' }], escaped: true },
+        { elem: ['a', { href: 'relateive/path' }], escaped: false },
+        { elem: ['a', { href: '/absolute/path' }], escaped: true },
+        { elem: ['img', { src: 'http://example.com' }], escaped: false },
+        { elem: ['img', { src: 'https://example.com' }], escaped: false },
+        { elem: ['img', { longdesc: 'http://example.com' }], escaped: false },
+        { elem: ['img', { longdesc: 'https://example.com' }], escaped: false },
+        { elem: ['img', { src: 'http://example.com', longdesc: 'https://example.com' }], escaped: false },
+        { elem: ['img', { src: 'file:///foo/bar', longdesc: 'https://example.com' }], escaped: true },
+        { elem: ['img', { src: '/abs/path', longdesc: 'https://example.com' }], escaped: true },
+        { elem: ['blockquote', { cite: 'https://example.com' }], escaped: false },
+    ],
 };
 
 function test_escape_element(t: GenericTestContext<Context<any>>, state: SanitizeState, testcase: ElemTest): void {
