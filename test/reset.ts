@@ -21,3 +21,16 @@ test('reset() resets state of sanitization when it is in use', t => {
     state.sanitize('</div>');
     t.false(state.isInUse());
 });
+
+test('reset() resets broken state of sanitization', t => {
+    const state = new SanitizeState();
+    state.sanitize('<div>');
+    state.sanitize('</span>');
+    t.true(state.isInUse());
+    t.true(state.isBroken());
+    state.reset();
+    t.false(state.isInUse());
+    state.sanitize('<div>');
+    state.sanitize('</div>');
+    t.false(state.isInUse());
+});

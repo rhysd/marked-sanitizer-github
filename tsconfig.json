@@ -18,6 +18,7 @@
     "index.ts",
     "test/integ.ts",
     "test/sanitize.ts",
+    "test/invalid.ts",
     "test/reset.ts"
   ]
 }

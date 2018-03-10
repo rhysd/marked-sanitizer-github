@@ -20,7 +20,7 @@ type SanitizeHistory = [string, HowToSanitize];
 
 export default class SanitizeState {
     public config = new SanitizeConfig();
-    public broken: boolean = false;
+    private broken: boolean = false;
     private tagStack: SanitizeHistory[] = [];
     private parsed: HTMLElem | undefined;
     private readonly parser = new HTMLParser({
@@ -35,7 +35,11 @@ export default class SanitizeState {
     }
 
     isInUse() {
-        return this.tagStack.length !== 0;
+        return this.broken || this.tagStack.length !== 0;
+    }
+
+    isBroken() {
+        return this.broken;
     }
 
     getSanitizer() {
@@ -85,6 +89,7 @@ export default class SanitizeState {
         if (elem === undefined) {
             // Failed to parse HTML tag
             // TODO: Should raise a warning message for debugging as optional.
+            this.broken = true;
             return escapeHTML(tag);
         }
 
