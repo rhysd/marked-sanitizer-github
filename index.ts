@@ -59,6 +59,7 @@ export default class SanitizeState {
 
     private sanitizeCloseTag(tag: string) {
         if (this.tagStack.length === 0) {
+            this.broken = true;
             return escapeHTML(tag);
         }
 

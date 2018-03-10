@@ -31,3 +31,11 @@ test('broken close tag', t => {
     t.is(state.sanitize('</div'), escape('</div'));
     t.true(state.isBroken());
 });
+
+test('extra close tag', t => {
+    const state = new SanitizeState();
+    state.sanitize('<div>');
+    state.sanitize('</div>');
+    t.is(state.sanitize('</div>'), escape('</div>'));
+    t.true(state.isBroken());
+});
