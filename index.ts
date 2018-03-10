@@ -19,19 +19,15 @@ enum HowToSanitize {
 type SanitizeHistory = [string, HowToSanitize];
 
 export default class SanitizeState {
-    public config: SanitizeConfig;
+    public config = new SanitizeConfig();
+    public detectedBroken: boolean = false;
     private tagStack: SanitizeHistory[] = [];
     private parsed: HTMLElem | undefined;
-    private readonly parser: HTMLParser;
-
-    constructor() {
-        this.config = new SanitizeConfig();
-        this.parser = new HTMLParser({
-            onopentag: (name, attrs) => {
-                this.parsed = { name, attrs };
-            },
-        });
-    }
+    private readonly parser = new HTMLParser({
+        onopentag: (name, attrs) => {
+            this.parsed = { name, attrs };
+        },
+    });
 
     reset() {
         this.tagStack = [];
@@ -46,6 +42,9 @@ export default class SanitizeState {
     }
 
     sanitize(tag: string) {
+        if (this.detectedBroken) {
+            return escapeHTML(tag);
+        }
         if (tag.startsWith('</')) {
             return this.sanitizeCloseTag(tag);
         } else {
@@ -63,6 +62,7 @@ export default class SanitizeState {
         if (tag !== `</${name}>`) {
             // Open/Close tag mismatch
             // TODO: Should raise a warning message for debugging as optional.
+            this.detectedBroken = true;
             return escapeHTML(tag);
         }
 
@@ -80,8 +80,6 @@ export default class SanitizeState {
     }
 
     private sanitizeOpenTag(tag: string) {
-        const isEmptyTag = tag.endsWith('/>');
-
         const elem = this.parseOpenTag(tag);
         if (elem === undefined) {
             // Failed to parse HTML tag
@@ -90,8 +88,8 @@ export default class SanitizeState {
         }
 
         const how = this.howToSanitize(elem);
-        if (!isEmptyTag) {
-            // Push
+        if (!tag.endsWith('/>')) {
+            // If it's not an empty element, push history stack
             this.tagStack.push([elem.name, how]);
         }
 

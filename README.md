@@ -9,6 +9,9 @@ The implementation was ported from [html-pipeline](html-pipeline/lib/html/pipeli
 all of them in a parsing Markdown document. By using [marked-sanitizer-github][], some safe
 HTML elements are available.
 
+When a sanitizer detects broken HTML elements (e.g. not closing element), it escapes all elements
+after that.
+
 ## Installation
 
 ```
