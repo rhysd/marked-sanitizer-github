@@ -48,6 +48,87 @@ const SANITIZE_OK: {
         },
     ],
 
+    'sanitized/allowed mixed elements (sequential)': [
+        { elem: 'style', escaped: true },
+        { elem: 'div', escaped: false },
+        { elem: ['script', { src: 'https://example.com/foo.js' }], escaped: true },
+        { elem: ['a', { name: 'hello' }], escaped: false },
+        { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+        { elem: ['a', { href: 'https://example.com' }], escaped: false },
+        { elem: ['a', { href: 'foo/bar.html' }], escaped: false },
+    ],
+
+    'sanitized/allowed mixed elements (sanitized -> allowed -> sanitized)': [
+        {
+            elem: 'style',
+            escaped: true,
+            children: {
+                elem: 'div',
+                escaped: false,
+                children: { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+            },
+        },
+    ],
+
+    'sanitized/allowed mixed elements (allowed -> sanitized -> allowed)': [
+        {
+            elem: 'div',
+            escaped: false,
+            children: {
+                elem: ['script', { src: 'https://example.com/foo.js' }],
+                escaped: true,
+                children: { elem: ['a', { href: 'https://example.com' }], escaped: false },
+            },
+        },
+    ],
+
+    'children can contain both sanitized and allowed elements': [
+        {
+            elem: 'style',
+            escaped: true,
+            children: [
+                {
+                    elem: 'div',
+                    escaped: false,
+                    children: [
+                        { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+                        { elem: ['a', { href: 'https://example.com' }], escaped: false },
+                    ],
+                },
+                {
+                    elem: ['script', { src: 'https://example.com/foo.js' }],
+                    escaped: true,
+                    children: [
+                        { elem: ['a', { href: 'https://example.com' }], escaped: false },
+                        { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+                    ],
+                },
+            ],
+        },
+        {
+            elem: 'div',
+            escaped: false,
+            children: [
+                {
+                    elem: ['script', { src: 'https://example.com/foo.js' }],
+                    escaped: true,
+                    children: [
+                        { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+                        { elem: ['a', { href: 'https://example.com' }], escaped: false },
+                    ],
+                },
+                {
+                    elem: 'div',
+                    escaped: false,
+                    children: [
+                        { elem: ['a', { href: 'https://example.com' }], escaped: false },
+                        { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
+                    ],
+                },
+            ],
+        },
+    ],
+
     'sanitize attributes': [
         { elem: ['a', { onclick: 'console.log("hey")' }], escaped: true },
         { elem: ['a', { href: 'https://example.com' }], escaped: false },
