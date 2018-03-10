@@ -20,7 +20,7 @@ type SanitizeHistory = [string, HowToSanitize];
 
 export default class SanitizeState {
     public config = new SanitizeConfig();
-    public detectedBroken: boolean = false;
+    public broken: boolean = false;
     private tagStack: SanitizeHistory[] = [];
     private parsed: HTMLElem | undefined;
     private readonly parser = new HTMLParser({
@@ -31,6 +31,7 @@ export default class SanitizeState {
 
     reset() {
         this.tagStack = [];
+        this.broken = false;
     }
 
     isInUse() {
@@ -42,7 +43,7 @@ export default class SanitizeState {
     }
 
     sanitize(tag: string) {
-        if (this.detectedBroken) {
+        if (this.broken) {
             return escapeHTML(tag);
         }
         if (tag.startsWith('</')) {
@@ -62,7 +63,7 @@ export default class SanitizeState {
         if (tag !== `</${name}>`) {
             // Open/Close tag mismatch
             // TODO: Should raise a warning message for debugging as optional.
-            this.detectedBroken = true;
+            this.broken = true;
             return escapeHTML(tag);
         }
 
@@ -104,6 +105,7 @@ export default class SanitizeState {
     }
 
     private parseOpenTag(tag: string) {
+        this.parser.reset();
         this.parser.write(tag);
         this.parser.end();
         const parsed = this.parsed;
