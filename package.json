@@ -36,10 +36,12 @@
     "@types/he": "^0.5.29",
     "@types/htmlparser2": "^3.7.31",
     "@types/marked": "^0.3.0",
+    "@types/sinon": "^4.3.0",
     "ava": "^0.25.0",
     "heredocument": "^2.0.2",
     "marked": "^0.3.17",
     "nyc": "^11.4.1",
+    "sinon": "^4.4.2",
     "typescript": "^2.7.2"
   },
   "dependencies": {
