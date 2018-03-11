@@ -20,6 +20,7 @@ type SanitizeHistory = [string, HowToSanitize];
 
 export default class SanitizeState {
     public config = new SanitizeConfig();
+    public onDetectedBroken: ((message: string, tag: string) => void) | null = null;
     private broken: boolean = false;
     private tagStack: SanitizeHistory[] = [];
     private parsed: HTMLElem | undefined;
@@ -57,18 +58,27 @@ export default class SanitizeState {
         }
     }
 
+    private itsBroken(msg: string, tag: string) {
+        if (this.broken) {
+            // Already broken
+            return;
+        }
+        this.broken = true;
+        if (this.onDetectedBroken !== null) {
+            this.onDetectedBroken(msg, tag);
+        }
+    }
+
     private sanitizeCloseTag(tag: string) {
         if (this.tagStack.length === 0) {
-            this.broken = true;
+            this.itsBroken('Extra closing HTML tags in the document', tag);
             return escapeHTML(tag);
         }
 
         // Check top
         const [name, how] = this.tagStack[this.tagStack.length - 1];
         if (tag !== `</${name}>`) {
-            // Open/Close tag mismatch
-            // TODO: Should raise a warning message for debugging as optional.
-            this.broken = true;
+            this.itsBroken(`Open/Closing HTML tag mismatch: </${name}> v.s. ${tag}`, tag);
             return escapeHTML(tag);
         }
 
@@ -88,9 +98,7 @@ export default class SanitizeState {
     private sanitizeOpenTag(tag: string) {
         const elem = this.parseOpenTag(tag);
         if (elem === undefined) {
-            // Failed to parse HTML tag
-            // TODO: Should raise a warning message for debugging as optional.
-            this.broken = true;
+            this.itsBroken(`Failed to parse open HTML tag: '${tag}'`, tag);
             return escapeHTML(tag);
         }
 
