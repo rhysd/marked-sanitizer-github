@@ -1,6 +1,7 @@
 import test, { GenericTestContext, Context } from 'ava';
 import { escape } from 'he';
 import SanitizeState from '../index';
+import voidElements = require('html-void-elements');
 
 interface ElemTest {
     elem: string | [string, { [name: string]: string }];
@@ -189,9 +190,12 @@ function test_escape_element(t: GenericTestContext<Context<any>>, state: Sanitiz
     }
 
     {
-        const input = `</${typeof elem === 'string' ? elem : elem[0]}>`;
+        const name = typeof elem === 'string' ? elem : elem[0];
+        const input = `</${name}>`;
         let want = input;
-        if (escaped) {
+        if (voidElements.indexOf(name) >= 0) {
+            want = '';
+        } else if (escaped) {
             want = escape(want);
         }
         const have = state.sanitize(input);

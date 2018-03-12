@@ -1,7 +1,11 @@
 import { URL } from 'url';
+import { isAbsolute } from 'path';
 import { Parser as HTMLParser } from 'htmlparser2';
 import { escape as escapeHTML } from 'he';
-import { isAbsolute } from 'path';
+import voidElements = require('html-void-elements');
+
+const VOID_ELEMENTS = new Set(voidElements);
+const RE_EXTRACT_TAG_NAME = /<\/([^>]+)>/;
 
 interface ElemAttrs {
     [name: string]: string | undefined;
@@ -70,6 +74,18 @@ export default class SanitizeState {
     }
 
     private sanitizeCloseTag(tag: string) {
+        const matched = tag.match(RE_EXTRACT_TAG_NAME);
+        if (matched === null) {
+            this.itsBroken(`Closing HTML tag is broken: '${tag}'`, tag);
+            return escapeHTML(tag);
+        }
+        const tagName = matched[1];
+        if (VOID_ELEMENTS.has(tagName)) {
+            return '';
+        }
+
+        // Note: This check must be done after above void element check because tag history
+        // stack is empty when a void element is at toplevel and with a closing tag.
         if (this.tagStack.length === 0) {
             this.itsBroken('Extra closing HTML tags in the document', tag);
             return escapeHTML(tag);
@@ -77,7 +93,7 @@ export default class SanitizeState {
 
         // Check top
         const [name, how] = this.tagStack[this.tagStack.length - 1];
-        if (tag !== `</${name}>`) {
+        if (tagName !== name) {
             this.itsBroken(`Open/Closing HTML tag mismatch: </${name}> v.s. ${tag}`, tag);
             return escapeHTML(tag);
         }
@@ -103,8 +119,11 @@ export default class SanitizeState {
         }
 
         const how = this.howToSanitize(elem);
-        if (!tag.endsWith('/>')) {
-            // If it's not an empty element, push history stack
+        if (!tag.endsWith('/>') && !VOID_ELEMENTS.has(elem.name)) {
+            // Note: If it's not an empty element, push history stack
+            // Note: If the element is void element, we don't push it to tag hisotry stack.
+            // On sanitizeCloseTag(), closing tags for void elements are simply skipped and they
+            // never appear in converted HTML document.
             this.tagStack.push([elem.name, how]);
         }
 

@@ -98,7 +98,7 @@ test('as real-world-example, README.md for markedjs/marked can be sanitized', t 
         sanitize: true,
         sanitizer: state.getSanitizer(),
     });
-    t.false(spy.called, spy.getCall(0).toString());
+    t.is(spy.getCall(0), null);
     t.false(state.isBroken());
     t.false(state.isInUse());
 });

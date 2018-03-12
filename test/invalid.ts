@@ -57,7 +57,7 @@ test('broken close tag', t => {
 
     t.true(spy.calledOnce);
     const args = spy.getCall(0).args;
-    t.true(args[0].includes('Open/Closing HTML tag mismatch'));
+    t.true(args[0].includes('Closing HTML tag is broken'));
     t.is(args[1], '</div');
 });
 
