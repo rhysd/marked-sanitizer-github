@@ -1,7 +1,10 @@
+import { join } from 'path';
+import { readFileSync } from 'fs';
+import test from 'ava';
+import sinon = require('sinon');
 import marked = require('marked');
 import here from 'heredocument';
 import SanitizeState from '../index';
-import test from 'ava';
 
 const CHECK_INTEG = {
     'small input without tag': {
@@ -80,6 +83,22 @@ for (const desc of Object.keys(CHECK_INTEG)) {
         });
         const want = testcase.output;
         t.is(want, have);
+        t.false(state.isBroken());
         t.false(state.isInUse());
     });
 }
+
+test('as real-world-example, README.md for markedjs/marked can be sanitized', t => {
+    const readme = readFileSync(join(__dirname, 'marked-README.md'), 'utf8');
+    const state = new SanitizeState();
+    const spy = sinon.spy();
+    state.onDetectedBroken = spy;
+    // TODO: Check the converted result does not contain &lt; and &gt;
+    marked(readme, {
+        sanitize: true,
+        sanitizer: state.getSanitizer(),
+    });
+    t.false(spy.called, spy.getCall(0).toString());
+    t.false(state.isBroken());
+    t.false(state.isInUse());
+});
