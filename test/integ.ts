@@ -1,9 +1,10 @@
-import { join } from 'path';
+import { join, basename } from 'path';
 import { readFileSync } from 'fs';
 import test from 'ava';
 import sinon = require('sinon');
 import marked = require('marked');
 import here from 'heredocument';
+import glob = require('glob');
 import SanitizeState from '../index';
 
 const CHECK_INTEG = {
@@ -88,17 +89,20 @@ for (const desc of Object.keys(CHECK_INTEG)) {
     });
 }
 
-test('as real-world-example, README.md for markedjs/marked can be sanitized', t => {
-    const readme = readFileSync(join(__dirname, 'marked-README.md'), 'utf8');
-    const state = new SanitizeState();
-    const spy = sinon.spy();
-    state.onDetectedBroken = spy;
-    // TODO: Check the converted result does not contain &lt; and &gt;
-    marked(readme, {
-        sanitize: true,
-        sanitizer: state.getSanitizer(),
+for (const readme of glob.sync(join(__dirname, 'fixture/*.md'))) {
+    test(`real-world example: ${basename(readme)}`, t => {
+        const input = readFileSync(readme, 'utf8');
+        const state = new SanitizeState();
+        const spy = sinon.spy();
+        state.onDetectedBroken = spy;
+        // TODO: Check the converted result does not contain &lt; and &gt;
+        marked(input, {
+            sanitize: true,
+            sanitizer: state.getSanitizer(),
+        });
+        const call = spy.getCall(0);
+        t.is(call, null, call ? call.toString() : undefined);
+        t.false(state.isBroken());
+        t.false(state.isInUse());
     });
-    t.is(spy.getCall(0), null);
-    t.false(state.isBroken());
-    t.false(state.isInUse());
-});
+}

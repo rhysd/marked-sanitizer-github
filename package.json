@@ -33,11 +33,13 @@
   },
   "homepage": "https://github.com/rhysd/marked-sanitizer-github#readme",
   "devDependencies": {
+    "@types/glob": "^5.0.35",
     "@types/he": "^0.5.29",
     "@types/htmlparser2": "^3.7.31",
     "@types/marked": "^0.3.0",
     "@types/sinon": "^4.3.0",
     "ava": "^0.25.0",
+    "glob": "^7.1.2",
     "heredocument": "^2.0.2",
     "marked": "^0.3.17",
     "nyc": "^11.4.1",
