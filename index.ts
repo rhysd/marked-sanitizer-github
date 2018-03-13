@@ -27,11 +27,16 @@ export default class SanitizeState {
     public onDetectedBroken: ((message: string, tag: string) => void) | null = null;
     private broken: boolean = false;
     private tagStack: SanitizeHistory[] = [];
-    private parsed: HTMLElem | undefined;
+    private parsed: HTMLElem | null | undefined;
     private readonly parser = new HTMLParser({
         onopentag: (name, attrs) => {
             this.parsed = { name, attrs };
         },
+        oncomment: () => {
+            this.parsed = null;
+        },
+        // Note: CDATA (cdatastart) is not handled
+        // Note: onerror is not handled because no error occurs while only parsing an opening tag
     });
 
     reset() {
@@ -113,9 +118,15 @@ export default class SanitizeState {
 
     private sanitizeOpenTag(tag: string) {
         const elem = this.parseOpenTag(tag);
-        if (elem === undefined) {
-            this.itsBroken(`Failed to parse open HTML tag: '${tag}'`, tag);
-            return escapeHTML(tag);
+        switch (elem) {
+            case null:
+                // null means comment
+                return '';
+            case undefined:
+                this.itsBroken(`Failed to parse open HTML tag: '${tag}'`, tag);
+                return escapeHTML(tag);
+            default:
+                break;
         }
 
         const how = this.howToSanitize(elem);
