@@ -63,7 +63,71 @@ const TEST_CASES = {
 
     'escaped void open/close element at toplevel': [['<base>', true], ['</base>', true]],
 
-    // TODO: Add more test cases for void elements which has closing tags
+    'normal elements in void elements': [
+        ['<br>', false],
+        ['<div/>', false],
+        ['</br>', false],
+        ['<base>', true],
+        ['<div>', false],
+        ['</div>', false],
+        ['</base>', true],
+        ['<br>', false],
+        ['<style/>', true],
+        ['</br>', false],
+        ['<base>', true],
+        ['<style>', true],
+        ['</style>', true],
+        ['</base>', true],
+    ],
+
+    'void elements in normal elements': [
+        ['<div>', false],
+        ['<br>', false],
+        ['</br>', false],
+        ['</div>', false],
+        ['<div>', false],
+        ['<base>', true],
+        ['</base>', true],
+        ['</div>', false],
+        ['<style>', true],
+        ['<br>', false],
+        ['</br>', false],
+        ['</style>', true],
+        ['<style>', true],
+        ['<base>', true],
+        ['</base>', true],
+        ['</style>', true],
+    ],
+
+    'void elements in void elements': [
+        ['<br>', false],
+        ['<base>', true],
+        ['</base>', true],
+        ['</br>', false],
+
+        ['<base>', true],
+        ['<br>', false],
+        ['</br>', false],
+        ['</base>', true],
+
+        ['<br>', false],
+        ['<br>', false],
+        ['</br>', false],
+        ['</br>', false],
+
+        ['<base>', true],
+        ['<base>', true],
+        ['</base>', true],
+        ['</base>', true],
+
+        ['<br>', false],
+        ['<base>', true],
+        ['</br>', false],
+
+        ['<base>', true],
+        ['<br>', false],
+        ['</base>', true],
+    ],
 } as { [desc: string]: [string, boolean][] };
 
 for (const desc of Object.keys(TEST_CASES)) {
