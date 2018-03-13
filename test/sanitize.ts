@@ -159,6 +159,8 @@ const SANITIZE_OK: {
         { elem: ['img', { src: '/abs/path', longdesc: 'https://example.com' }], escaped: true },
         { elem: ['blockquote', { cite: 'https://example.com' }], escaped: false },
     ],
+
+    'uppercase tag name': [{ elem: 'H1', escaped: false }],
 };
 
 function test_escape_element(t: GenericTestContext<Context<any>>, state: SanitizeState, testcase: ElemTest): void {
@@ -167,12 +169,12 @@ function test_escape_element(t: GenericTestContext<Context<any>>, state: Sanitiz
     {
         let input;
         if (typeof elem === 'string') {
-            input = `<${elem}>`;
+            input = `<${elem.toLowerCase()}>`;
         } else {
             const attrs = Object.keys(elem[1])
                 .map(key => `${key}="${elem[1][key]}"`)
                 .join(' ');
-            input = `<${elem[0]} ${attrs}>`;
+            input = `<${elem[0].toLowerCase()} ${attrs}>`;
         }
         let want = input;
         if (escaped) {

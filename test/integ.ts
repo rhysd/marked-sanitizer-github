@@ -28,15 +28,14 @@ const CHECK_INTEG = {
     },
     'allowed tags': {
         input: here`
-            <div>
+            <strong>
                 <a href="https://example.com">hello</a>
-            </div>
+            </strong>
         `,
         output: here`
-            <p><div>
+            <p><strong>
                 <a href="https://example.com">hello</a>
-            </div>
-            </p>
+            </strong></p>
         `,
     },
     'banned tags': {

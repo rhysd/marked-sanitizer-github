@@ -6,9 +6,9 @@ const TEST_CASES = {
     comment: [['<!-- this is comment -->', true]],
     comments: [['<!-- this -->', true], ['<!-- is -->', true], ['<!-- comment -->', true]],
     'comment in element': [
-        ['<div>', false],
+        ['<strong>', false],
         ['<!-- comment -->', true],
-        ['</div>', false],
+        ['</strong>', false],
         ['<style>', false],
         ['<!-- comment -->', true],
         ['</style>', false],

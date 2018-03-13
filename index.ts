@@ -17,6 +17,7 @@ enum HowToSanitize {
     Escape,
     Remove,
     DoNothing,
+    EscapeWithoutPush,
 }
 
 // Tuple of (tagName, didEscape)
@@ -84,9 +85,13 @@ export default class SanitizeState {
             this.itsBroken(`Closing HTML tag is broken: '${tag}'`, tag);
             return escapeHTML(tag);
         }
-        const tagName = matched[1];
+        const tagName = matched[1].toLowerCase();
         if (VOID_ELEMENTS.has(tagName)) {
             return '';
+        }
+        if (!this.config.whitelist.ELEMENTS.has(tagName)) {
+            // If tag name is not allowed, it is always escaped
+            return escapeHTML(tag);
         }
 
         // Note: This check must be done after above void element check because tag history
@@ -113,6 +118,8 @@ export default class SanitizeState {
                 return escapeHTML(tag);
             case HowToSanitize.DoNothing:
                 return tag;
+            case HowToSanitize.EscapeWithoutPush:
+                throw new Error('NEVER REACH HERE');
         }
     }
 
@@ -130,7 +137,7 @@ export default class SanitizeState {
         }
 
         const how = this.howToSanitize(elem);
-        if (!tag.endsWith('/>') && !VOID_ELEMENTS.has(elem.name)) {
+        if (how !== HowToSanitize.EscapeWithoutPush && !tag.endsWith('/>') && !VOID_ELEMENTS.has(elem.name)) {
             // Note: If it's not an empty element, push history stack
             // Note: If the element is void element, we don't push it to tag hisotry stack.
             // On sanitizeCloseTag(), closing tags for void elements are simply skipped and they
@@ -142,6 +149,7 @@ export default class SanitizeState {
             case HowToSanitize.Remove:
                 return '';
             case HowToSanitize.Escape:
+            case HowToSanitize.EscapeWithoutPush:
                 return escapeHTML(tag);
             case HowToSanitize.DoNothing:
                 return tag;
@@ -180,7 +188,7 @@ export default class SanitizeState {
 
         // Check allowed (non escaped) elements
         if (!wl.ELEMENTS.has(elem.name)) {
-            return HowToSanitize.Escape;
+            return HowToSanitize.EscapeWithoutPush;
         }
 
         // TODO: Check elements should be removed (not escaped, but just removed)
