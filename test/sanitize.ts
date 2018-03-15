@@ -161,6 +161,29 @@ const SANITIZE_OK: {
     ],
 
     'uppercase tag name': [{ elem: 'H1', escaped: false }],
+
+    'unknown tag': [
+        { elem: 'hoge', escaped: true },
+        { elem: ['fuga', { href: 'https://foo.com/bar' }], escaped: true },
+        {
+            elem: 'foo',
+            escaped: true,
+            children: [{ elem: 'bar', escaped: true }],
+        },
+    ],
+
+    'unknown tag and known tag': [
+        {
+            elem: 'foo',
+            escaped: true,
+            children: [{ elem: 'strong', escaped: false }],
+        },
+        {
+            elem: 'pre',
+            escaped: false,
+            children: [{ elem: 'bar', escaped: true }],
+        },
+    ],
 };
 
 function test_escape_element(t: GenericTestContext<Context<any>>, state: SanitizeState, testcase: ElemTest): void {
@@ -235,6 +258,21 @@ test('sanitize banned empty elements', t => {
             let want = tag;
             if (tag !== '<div>' && tag !== '</div>') {
                 want = escape(tag);
+            }
+            t.is(want, have);
+        }
+        t.false(state.isInUse());
+    }
+});
+
+test('sanitize unknown empty elements', t => {
+    for (const tc of [['<foo/>'], ['<foo/>', '<bar/>', '<baz/>'], ['<div>', '<foo/>', '</div>']]) {
+        const state = new SanitizeState();
+        for (const tag of tc) {
+            const have = state.sanitize(tag);
+            let want = tag;
+            if (tag !== '<div>' && tag !== '</div>') {
+                want = escape(want);
             }
             t.is(want, have);
         }

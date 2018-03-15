@@ -128,6 +128,19 @@ const TEST_CASES = {
         ['<br>', false],
         ['</base>', true],
     ],
+
+    'unknown void elements': [
+        ['<foo>', true],
+        ['<br>', false],
+        ['<bar>', true],
+        ['<br/>', false],
+        ['<piyo>', true],
+        ['<br>', false],
+        ['<br/>', false],
+        ['<hoge>', true],
+        ['<pre>', false],
+        ['</pre>', false],
+    ],
 } as { [desc: string]: [string, boolean][] };
 
 for (const desc of Object.keys(TEST_CASES)) {
