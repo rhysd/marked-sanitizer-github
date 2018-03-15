@@ -11,7 +11,10 @@ interface ElemAttrs {
     [name: string]: string | undefined;
 }
 
-type HTMLElem = { name: string; attrs: ElemAttrs };
+interface HTMLElem {
+    name: string;
+    attrs: ElemAttrs;
+}
 
 enum HowToSanitize {
     Escape,
@@ -22,6 +25,171 @@ enum HowToSanitize {
 
 // Tuple of (tagName, didEscape)
 type SanitizeHistory = [string, HowToSanitize];
+
+export class SanitizeWhitelist {
+    ELEMENTS = new Set([
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'h7',
+        'h8',
+        'br',
+        'b',
+        'i',
+        'strong',
+        'em',
+        'a',
+        'pre',
+        'code',
+        'img',
+        'tt',
+        'div',
+        'ins',
+        'del',
+        'sup',
+        'sub',
+        'p',
+        'ol',
+        'ul',
+        'table',
+        'thead',
+        'tbody',
+        'tfoot',
+        'blockquote',
+        'dl',
+        'dt',
+        'dd',
+        'kbd',
+        'q',
+        'samp',
+        'var',
+        'hr',
+        'ruby',
+        'rt',
+        'rp',
+        'li',
+        'tr',
+        'td',
+        'th',
+        's',
+        'strike',
+        'summary',
+        'details',
+    ]);
+    REMOVE_CONTENTS = ['script'];
+    ATTRIBUTES = {
+        a: ['href'],
+        img: ['src', 'longdesc'],
+        div: ['itemscope', 'itemtype'],
+        blockquote: ['cite'],
+        del: ['cite'],
+        ins: ['cite'],
+        q: ['cite'],
+        '*': new Set([
+            'abbr',
+            'accept',
+            'accept-charset',
+            'accesskey',
+            'action',
+            'align',
+            'alt',
+            'axis',
+            'border',
+            'cellpadding',
+            'cellspacing',
+            'char',
+            'charoff',
+            'charset',
+            'checked',
+            'clear',
+            'cols',
+            'colspan',
+            'color',
+            'compact',
+            'coords',
+            'datetime',
+            'dir',
+            'disabled',
+            'enctype',
+            'for',
+            'frame',
+            'headers',
+            'height',
+            'hreflang',
+            'hspace',
+            'ismap',
+            'label',
+            'lang',
+            'maxlength',
+            'media',
+            'method',
+            'multiple',
+            'name',
+            'nohref',
+            'noshade',
+            'nowrap',
+            'open',
+            'prompt',
+            'readonly',
+            'rel',
+            'rev',
+            'rows',
+            'rowspan',
+            'rules',
+            'scope',
+            'selected',
+            'shape',
+            'size',
+            'span',
+            'start',
+            'summary',
+            'tabindex',
+            'target',
+            'title',
+            'type',
+            'usemap',
+            'valign',
+            'value',
+            'vspace',
+            'width',
+            'itemprop',
+        ]),
+    };
+    // Note: Relative path also should be allowed
+    PROTOCOLS = {
+        a: {
+            href: ['http', 'https', 'mailto', 'github-windows', 'github-mac'],
+        },
+        blockquote: {
+            cite: ['http', 'https'],
+        },
+        del: {
+            cite: ['http', 'https'],
+        },
+        ins: {
+            cite: ['http', 'https'],
+        },
+        q: {
+            cite: ['http', 'https'],
+        },
+        img: {
+            src: ['http', 'https'],
+            longdesc: ['http', 'https'],
+        },
+    } as { [name: string]: { [attr: string]: string[] } };
+}
+
+export class SanitizeConfig {
+    LIST = ['ul', 'ol'];
+    LIST_ITEM = 'li';
+    TABLE_ITEMS = ['tr', 'td', 'th'];
+    TABLE = 'table';
+    TABLE_SECTIONS = ['thead', 'tbody', 'tfoot'];
+    whitelist = new SanitizeWhitelist();
+}
 
 export default class SanitizeState {
     public config = new SanitizeConfig();
@@ -223,169 +391,4 @@ export default class SanitizeState {
 
         return HowToSanitize.DoNothing;
     }
-}
-
-export class SanitizeConfig {
-    LIST = ['ul', 'ol'];
-    LIST_ITEM = 'li';
-    TABLE_ITEMS = ['tr', 'td', 'th'];
-    TABLE = 'table';
-    TABLE_SECTIONS = ['thead', 'tbody', 'tfoot'];
-    whitelist = new SanitizeWhitelist();
-}
-
-export class SanitizeWhitelist {
-    ELEMENTS = new Set([
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'h7',
-        'h8',
-        'br',
-        'b',
-        'i',
-        'strong',
-        'em',
-        'a',
-        'pre',
-        'code',
-        'img',
-        'tt',
-        'div',
-        'ins',
-        'del',
-        'sup',
-        'sub',
-        'p',
-        'ol',
-        'ul',
-        'table',
-        'thead',
-        'tbody',
-        'tfoot',
-        'blockquote',
-        'dl',
-        'dt',
-        'dd',
-        'kbd',
-        'q',
-        'samp',
-        'var',
-        'hr',
-        'ruby',
-        'rt',
-        'rp',
-        'li',
-        'tr',
-        'td',
-        'th',
-        's',
-        'strike',
-        'summary',
-        'details',
-    ]);
-    REMOVE_CONTENTS = ['script'];
-    ATTRIBUTES = {
-        a: ['href'],
-        img: ['src', 'longdesc'],
-        div: ['itemscope', 'itemtype'],
-        blockquote: ['cite'],
-        del: ['cite'],
-        ins: ['cite'],
-        q: ['cite'],
-        '*': new Set([
-            'abbr',
-            'accept',
-            'accept-charset',
-            'accesskey',
-            'action',
-            'align',
-            'alt',
-            'axis',
-            'border',
-            'cellpadding',
-            'cellspacing',
-            'char',
-            'charoff',
-            'charset',
-            'checked',
-            'clear',
-            'cols',
-            'colspan',
-            'color',
-            'compact',
-            'coords',
-            'datetime',
-            'dir',
-            'disabled',
-            'enctype',
-            'for',
-            'frame',
-            'headers',
-            'height',
-            'hreflang',
-            'hspace',
-            'ismap',
-            'label',
-            'lang',
-            'maxlength',
-            'media',
-            'method',
-            'multiple',
-            'name',
-            'nohref',
-            'noshade',
-            'nowrap',
-            'open',
-            'prompt',
-            'readonly',
-            'rel',
-            'rev',
-            'rows',
-            'rowspan',
-            'rules',
-            'scope',
-            'selected',
-            'shape',
-            'size',
-            'span',
-            'start',
-            'summary',
-            'tabindex',
-            'target',
-            'title',
-            'type',
-            'usemap',
-            'valign',
-            'value',
-            'vspace',
-            'width',
-            'itemprop',
-        ]),
-    };
-    // Note: Relative path also should be allowed
-    PROTOCOLS = {
-        a: {
-            href: ['http', 'https', 'mailto', 'github-windows', 'github-mac'],
-        },
-        blockquote: {
-            cite: ['http', 'https'],
-        },
-        del: {
-            cite: ['http', 'https'],
-        },
-        ins: {
-            cite: ['http', 'https'],
-        },
-        q: {
-            cite: ['http', 'https'],
-        },
-        img: {
-            src: ['http', 'https'],
-            longdesc: ['http', 'https'],
-        },
-    } as { [name: string]: { [attr: string]: string[] } };
 }

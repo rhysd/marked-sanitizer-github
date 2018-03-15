@@ -3,3 +3,4 @@
 /.nyc_output
 /.git
 /.gitignore
+/tslint.json

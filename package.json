@@ -13,6 +13,7 @@
     "test": "npm run tsc && npm run ava",
     "coverage": "npm run tsc && npm run nyc",
     "watch-test": "ava --watch 'test/*.js'",
+    "lint": "tslint -p .",
     "prepublishOnly": "npm run build && npm run nyc"
   },
   "repository": {
@@ -44,6 +45,7 @@
     "marked": "^0.3.17",
     "nyc": "^11.4.1",
     "sinon": "^4.4.2",
+    "tslint": "^5.9.1",
     "typescript": "^2.7.2"
   },
   "dependencies": {
