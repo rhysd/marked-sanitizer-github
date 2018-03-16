@@ -40,10 +40,21 @@ const html = marked(md, {
 console.log(html);
 ```
 
-`SanitizeState` class also provides `reset()` method and `isInUse()` method.
+`SanitizeState` class also provides `reset()` method, `isBroken()` method and `isInUse()` method.
 
 `reset()` method resets the sanitization state. If you use the `SanitizeState` object multiple times,
 you must call the method before parsing a markdown document.
+
+`isBroken()` method returns whether the state is broken. A broken state means that Some HTML elements in
+a sanitized document were broken (e.g. tag mismatch, closing tag does not appear, ...).
+
+You can have a callback to know the reason why the document is broken as follows:
+
+```javascript
+state.onDetectedBroken = (reason, tag) => {
+    console.error(`Broken HTML around '${tag}' tag: ${reason}`);
+};
+```
 
 `isInUse()` method returns whether the state object has ongoing state or is ready for parsing a new
 document. `true` means the internal state is in use (not ready for parsing a new document).
