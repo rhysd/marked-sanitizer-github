@@ -14,7 +14,7 @@
     "coverage": "npm run tsc && npm run nyc",
     "watch-test": "ava --watch 'test/*.js'",
     "lint": "tslint -p .",
-    "prepublishOnly": "npm run build && npm run nyc"
+    "prepublishOnly": "npm run build && npm run lint && npm run nyc && npm run dts"
   },
   "repository": {
     "type": "git",
