@@ -49,6 +49,35 @@ you must call the method before parsing a markdown document.
 document. `true` means the internal state is in use (not ready for parsing a new document).
 Returning `true` means it requires to call `reset()` method before parsing a new document.
 
+## Sanitized elements
+
+- **Allowed elements**: `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `h7`, `h8`, `br`, `b`, `i`, `strong`, `em`, `a`, `pre`, `code`, `img`, `tt`, `div`, `ins`, `del`, `sup`, `sub`, `p`, `ol`, `ul`, `table`, `thead`, `tbody`, `tfoot`, `blockquote`, `dl`, `dt`, `dd`, `kbd`, `q`, `samp`, `var`, `hr`, `ruby`, `rt`, `rp`, `li`, `tr`, `td`, `th`, `s`, `strike`, `summary` and `details`
+- **Allowed attributes**: Only following attributes are allowed for allowed elements.
+  - **a**: `href`
+  - **img**: `src` and `longdesc`
+  - **div**: `itemscope` and `itemtype`
+  - **blockquote**: `cite`
+  - **del**: `cite`
+  - **ins**: `cite`
+  - **q**: `cite`
+  - **ALL**: `abbr`, `accept`, `accept-charset`, `accesskey`, `action`, `align`, `alt`, `axis`, `border`, `cellpadding`, `cellspacing`, `char`, `charoff`, `charset`, `checked`, `clear`, `cols`, `colspan`, `color`, `compact`, `coords`, `datetime`, `dir`, `disabled`, `enctype`, `for`, `frame`, `headers`, `height`, `hreflang`, `hspace`, `ismap`, `label`, `lang`, `maxlength`, `media`, `method`, `multiple`, `name`, `nohref`, `noshade`, `nowrap`, `open`, `prompt`, `readonly`, `rel`, `rev`, `rows`, `rowspan`, `rules`, `scope`, `selected`, `shape`, `size`, `span`, `start`, `summary`, `tabindex`, `target`, `title`, `type`, `usemap`, `valign`, `value`, `vspace`, `width` and `itemprop`
+- **Allowed protocols in attributes**: Only following protocols are allowed as values of allowed attributes
+  - **a**:
+    - **href**: `http`, `https`, `mailto`, `github-windows` and `github-mac`
+  - **blockquote**:
+    - **cite**: `http` and `https`
+  - **del**:
+    - **cite**: `http` and `https`
+  - **ins**:
+    - **cite**: `http` and `https`
+  - **q**:
+    - **cite**: `http` and `https`
+  - **img**:
+    - **src**: `http` and `https`
+    - **longdesc**: `http` and `https`
+- `li` must be nested in `ul` and `ol`
+- Table items (`tr`, `td` and `th`) and table headers (`thead`, `tbody` and `tfoot`) must be nested in `table`
+
 ## License
 
 [MIT License](LICENSE)
