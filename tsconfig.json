@@ -16,7 +16,6 @@
   },
   "files": [
     "index.ts",
-    "html-void-elements.d.ts",
     "test/integ.ts",
     "test/sanitize.ts",
     "test/invalid.ts",
