@@ -5,3 +5,4 @@
 /.gitignore
 /tslint.json
 /scripts
+/.travis.yml
