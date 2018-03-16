@@ -12,6 +12,8 @@ HTML elements are available.
 When a sanitizer detects broken HTML elements (e.g. not closing element), it escapes all elements
 after that.
 
+This package was created to be used for [Shiba](https://github.com/rhysd/Shiba).
+
 ## Installation
 
 ```
