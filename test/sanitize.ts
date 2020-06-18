@@ -280,6 +280,18 @@ test('sanitize unknown empty elements', t => {
     }
 });
 
+test('sanitize unknown attribute', t => {
+    for (const tc of [['<details ontoggle=f()>', '</details>']]) {
+        const state = new SanitizeState();
+        for (const tag of tc) {
+            const have = state.sanitize(tag);
+            const want = escape(tag);
+            t.is(want, have);
+        }
+        t.false(state.isInUse());
+    }
+})
+
 const TEST_REMOVE_OK = {
     'remove list item element if list element is not in ancestors': {
         input: [['<li>', '</li>'], ['<li/>']],
