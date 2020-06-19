@@ -1,6 +1,6 @@
 {
   "name": "marked-sanitizer-github",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTML tag sanitizer for marked",
   "main": "index.js",
   "scripts": {
