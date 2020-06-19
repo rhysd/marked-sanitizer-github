@@ -365,7 +365,9 @@ export default class SanitizeState {
         const allowedAttrs: string[] | undefined = (wl.ATTRIBUTES as any)[elem.name];
         for (const attr of Object.keys(elem.attrs)) {
             // Check allowed attributes
-            if (allowedAttrs !== undefined && allowedAttrs.indexOf(attr) === -1 && !wl.ATTRIBUTES['*'].has(attr)) {
+            const isOwnAttr = allowedAttrs !== undefined && allowedAttrs.indexOf(attr) !== -1;
+            const isAllAttr = wl.ATTRIBUTES['*'].has(attr);
+            if (!isOwnAttr && !isAllAttr) {
                 return HowToSanitize.Escape;
             }
 
