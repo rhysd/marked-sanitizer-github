@@ -1,4 +1,4 @@
-import test, { GenericTestContext, Context } from 'ava';
+import test, { ExecutionContext } from 'ava';
 import { escape } from 'he';
 import SanitizeState from '../index';
 import voidElements = require('html-void-elements');
@@ -186,7 +186,7 @@ const SANITIZE_OK: {
     ],
 };
 
-function test_escape_element(t: GenericTestContext<Context<any>>, state: SanitizeState, testcase: ElemTest): void {
+function test_escape_element(t: ExecutionContext<unknown>, state: SanitizeState, testcase: ElemTest): void {
     const { elem, escaped } = testcase;
 
     {
