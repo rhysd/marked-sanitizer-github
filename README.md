@@ -16,6 +16,11 @@ after that.
 
 This package was created to be used for [Shiba](https://github.com/rhysd/Shiba).
 
+## :warning: WARNING :warning:
+
+From marked v0.7.0, `sanitize` option was deprecated. Please read
+[the usage document of marked](https://github.com/markedjs/marked#usage) for more details.
+
 ## Installation
 
 ```
