@@ -186,7 +186,7 @@ const SANITIZE_OK: {
     ],
 };
 
-function test_escape_element(t: ExecutionContext<unknown>, state: SanitizeState, testcase: ElemTest): void {
+function test_escape_element(t: ExecutionContext, state: SanitizeState, testcase: ElemTest): void {
     const { elem, escaped } = testcase;
 
     {
