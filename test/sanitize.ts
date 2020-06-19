@@ -290,7 +290,7 @@ test('sanitize unknown attribute', t => {
         }
         t.false(state.isInUse());
     }
-})
+});
 
 const TEST_REMOVE_OK = {
     'remove list item element if list element is not in ancestors': {
