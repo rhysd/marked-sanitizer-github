@@ -39,7 +39,7 @@
     "@types/html-void-elements": "^1.0.0",
     "@types/marked": "^0.7.4",
     "@types/sinon": "^9.0.4",
-    "ava": "^3.9.0",
+    "ava": "^5.2.0",
     "glob": "^7.1.6",
     "heredocument": "^2.0.2",
     "marked": "^0.3.17",
